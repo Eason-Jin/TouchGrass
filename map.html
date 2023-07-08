@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Map</title>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <style>
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: "Lato", sans-serif;
+    }
+
+    .w3-bar,
+    h1,
+    button {
+      font-family: "Montserrat", sans-serif;
+    }
+
+    .fa-anchor,
+    .fa-coffee {
+      font-size: 200px;
+    }
+
+    #map-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 0 !important;
+      margin: 0 !important;
+      top: 50px;
+    }
+
+    #footer {
+      width: 100%;
+      position: relative;
+      top: 670px;
+      padding: 0 !important;
+    }
+
+    /**
+     * @license
+     * Copyright 2019 Google LLC. All Rights Reserved.
+     * SPDX-License-Identifier: Apache-2.0
+     */
+    /** 
+     * Always set the map height explicitly to define the size of the div element
+     * that contains the map. 
+     */
+    #map {
+      height: 100%;
+      width: 100%;
+      position: absolute !important;
+    }
+
+    .custom-map-control-button {
+      background-color: #fff;
+      border: 0;
+      border-radius: 2px;
+      box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+      margin: 10px;
+      padding: 0 0.5em;
+      font: 400 18px Roboto, Arial, sans-serif;
+      overflow: hidden;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    .custom-map-control-button:hover {
+      background: rgb(235, 235, 235);
+    }
+
+    .dropdown {
+      float: left;
+      overflow: hidden;
+
+    }
+
+    .dropdown .dropbtn {
+      font-size: 16px;
+      border: none;
+      outline: none;
+      color: white;
+      padding: 14px 16px;
+      background-color: inherit;
+      font-family: inherit;
+      margin: 0;
+    }
+
+    .navbar a:hover,
+    .dropdown:hover .dropbtn {
+      background-color: rgb(235, 235, 235);
+      color: black;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content ul {
+      float: none;
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+      list-style: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #ddd;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .show {
+      display: block;
+    }
+  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script>
+    /**
+     * @license
+     * Copyright 2019 Google LLC. All Rights Reserved.
+     * SPDX-License-Identifier: Apache-2.0
+     */
+    // Note: This example requires that you consent to location sharing when
+    // prompted by your browser. If you see the error "The Geolocation service
+    // failed.", it means you probably did not give permission for the browser to
+    // locate you.
+    let map, infoWindow;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -36.85319342072366, lng: 174.76944325517317 },
+        zoom: 14,
+      });
+      infoWindow = new google.maps.InfoWindow();
+
+      const locationButton = document.createElement("button");
+
+      locationButton.textContent = "Pan to Current Location";
+      locationButton.classList.add("custom-map-control-button");
+      map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+        locationButton
+      );
+      locationButton.addEventListener("click", () => {
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+
+              infoWindow.setPosition(pos);
+              infoWindow.setContent("Location found.");
+              infoWindow.open(map);
+              map.setCenter(pos);
+            },
+            () => {
+              handleLocationError(true, infoWindow, map.getCenter());
+            }
+          );
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      });
+
+      const friendLocations = [
+        ["Sam Smith", -36.848652150038156, 174.76664545469202, 4],
+        ["Ann Lowe", -36.84173956740042, 174.7633716524264, 5],
+        ["Dennis", -36.871089388573395, 174.77695697763556, 3],
+        ["Eason", -36.877488908272646, 174.75191862975146, 2],
+        ["Maroubra Beach", -36.857581133743714, 174.76346794693325, 1],
+      ];
+      initMarkers(map, friendLocations);
+    }
+
+    function initMarkers(map, friends) {
+      for (let i = 0; i < friends.length; i++) {
+        const friend = friends[i];
+
+        new google.maps.Marker({
+          position: { lat: friend[1], lng: friend[2] },
+          map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillOpacity: 1,
+            strokeWeight: 2,
+            fillColor: "#FFA500",
+            strokeColor: "#ffffff",
+          },
+          title: friend[0],
+          zIndex: friend[3],
+        });
+      }
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+      infoWindow.setPosition(pos);
+      infoWindow.setContent(
+        browserHasGeolocation
+          ? "Error: The Geolocation service failed."
+          : "Error: Your browser doesn't support geolocation."
+      );
+      infoWindow.open(map);
+    }
+
+    window.initMap = initMap;
+
+  </script>
+</head>
+
+<body>
+  <!-- Navbar w3-bar w3-red w3-card w3-left-align w3-large-->
+  <div class="navbar">
+    <div class="w3-bar w3-teal w3-card w3-left-align w3-large">
+      <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red"
+        href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+      <a href="home.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Home</a>
+      <div class="dropdown">
+        <button class="dropbtn">
+          Daily Tasks
+          <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-content">
+          <ul id="ul-el"></ul>
+        </div>
+      </div>
+
+      <a href="map.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Map</a>
+      <a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Friends</a>
+
+      <button id="clear-btn" class="w3-bar-item w3-button w3-padding-large w3-hover-whit"
+        onclick="clear()">Clear</button>
+
+    </div>
+
+    <!-- Navbar on small screens -->
+    <div id="navDemo" class="w3-bar-block w3-white w3-hide w3-hide-large w3-hide-medium w3-large">
+      <a href="#" class="w3-bar-item w3-button w3-padding-large">Daily Tasks</a>
+      <a href="#" class="w3-bar-item w3-button w3-padding-large">Map</a>
+      <a href="#" class="w3-bar-item w3-button w3-padding-large">Friends</a>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div id="map-container" class="w3-row-padding w3-padding-64 w3-container">
+    <div id="map"></div>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDns9VfNOIvqqX5KePiCgEn7niYyJzsG2s&callback=initMap&v=weekly"
+      defer></script>
+  </div>
+
+  <script>
+    // Used to toggle the menu on small screens when clicking on the menu button
+    function myFunction() {
+      var x = document.getElementById("navDemo");
+      if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+      } else {
+        x.className = x.className.replace(" w3-show", "");
+      }
+    }
+
+    let walkBadge = {
+      distance: 10,
+      unlocked: false,
+    }
+    let peopleBadge = {
+      people: 5,
+      unlocked: false,
+    }
+
+    let distWalked = 0;
+    let peopleMet = 0;
+    let distGoal = 10;
+    let peopleGoal = 5;
+
+
+
+    // Retrieve data from database, repeat this function every 5 seconds
+    function doThings() {
+      const distSaved = JSON.parse(localStorage.getItem("distWalked"));
+      const peopleSaved = JSON.parse(localStorage.getItem("peopleMet"));
+      const distGoalSaved = JSON.parse(localStorage.getItem("distGoal"));
+      const peopleGoalSaved = JSON.parse(localStorage.getItem("peopleGoal"));
+
+      if (distSaved) {
+        distWalked = distSaved;
+      }
+
+      if (peopleSaved) {
+        peopleMet = peopleSaved;
+      }
+
+      if (distGoalSaved) {
+        distGoal = distGoalSaved;
+      }
+
+      if (peopleGoalSaved) {
+        peopleGoal = peopleGoalSaved;
+      }
+      let newWalk = 1;
+      let newPeople = 1;
+      localStorage.setItem("distWalked", JSON.stringify(distWalked + newWalk));
+      localStorage.setItem("peopleMet", JSON.stringify(peopleMet + newPeople));
+      localStorage.setItem("distGoal", JSON.stringify(distGoal));
+      localStorage.setItem("peopleGoal", JSON.stringify(peopleGoal));
+
+      if (distWalked >= distGoal) {
+        // alert("You have completed your daily walking goal!");
+        if (walkBadge.unlocked === false) {
+          walkBadge.unlocked = true;
+        }
+        walkBadge.distance = distGoal;
+        distGoal *= 2
+        localStorage.setItem("distGoal", JSON.stringify(distGoal));
+
+      }
+
+      if (peopleMet >= peopleGoal) {
+        // alert("You have completed your daily socialising goal!");
+        if (peopleBadge.unlocked === false) {
+          peopleBadge.unlocked = true;
+        }
+        peopleBadge.people = peopleGoal;
+        peopleGoal *= 2
+        localStorage.setItem("peopleGoal", JSON.stringify(peopleGoal));
+      }
+
+      render();
+    }
+
+    setInterval(doThings, 1000);
+
+    function render() {
+      const ulEl = document.getElementById("ul-el");
+
+      ulEl.innerHTML = `
+      <li>
+        <p>Distance walked: ${distWalked} / ${distGoal} km</p>
+      </li>
+      <li>
+        <p>People met: ${peopleMet} / ${peopleGoal} person(s)</p>
+      </li>`;
+    }
+
+    const clearBtn = document.getElementById("clear-btn");
+    clearBtn.addEventListener("click", function () {
+      localStorage.clear();
+      distWalked = 0;
+      distGoal = 10;
+      peopleMet = 0;
+      peopleGoal = 5;
+      render()
+    });
+  </script>
+</body>
+
+</html>
