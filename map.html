@@ -107,7 +107,6 @@
       display: none;
       position: absolute;
       background-color: #f9f9f9;
-      min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
       z-index: 1;
     }
@@ -120,6 +119,10 @@
       display: block;
       text-align: left;
       list-style: none;
+    }
+
+    .dropdown-content li {
+      border-bottom: 2px solid #000000;
     }
 
     .dropdown-content a:hover {
@@ -231,9 +234,153 @@
 
   </script>
 </head>
+<style>
+  img {
+    width: 7%;
+    height: auto;
+  }
+
+  /* Customize the label (the container) */
+  .container {
+    display: block;
+    position: relative;
+    padding-right: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Hide the browser's default checkbox */
+  .container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /* Create a custom checkbox */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+  }
+
+  /* On mouse-over, add a grey background color */
+  .container:hover input~.checkmark {
+    background-color: #ccc;
+  }
+
+  /* When the checkbox is checked, add a blue background */
+  .container input:checked~.checkmark {
+    background-color: #2196F3;
+  }
+
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  /* Show the checkmark when checked */
+  .container input:checked~.checkmark:after {
+    display: block;
+  }
+
+  /* Style the checkmark/indicator */
+  .container .checkmark:after {
+    right: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+</style>
 
 <body>
-  <!-- Navbar w3-bar w3-red w3-card w3-left-align w3-large-->
+  <style>
+    /* Customize the label (the container) */
+    .container-checkbox {
+      display: block;
+      position: relative;
+      padding-right: 35px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      cursor: pointer;
+      font-size: 22px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default checkbox */
+    .container-checkbox input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom checkbox */
+    .checkmark {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .container-checkbox:hover input~.checkmark {
+      background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .container-checkbox input:checked~.checkmark {
+      background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .container-checkbox input:checked~.checkmark:after {
+      display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .container-checkbox .checkmark:after {
+      right: 9px;
+      top: 5px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+  </style>
+  <!-- Navbar-->
   <div class="navbar">
     <div class="w3-bar w3-teal w3-card w3-left-align w3-large">
       <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-red"
@@ -250,10 +397,10 @@
       </div>
 
       <a href="map.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-white">Map</a>
-      <a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Friends</a>
+      <a href="friends.html" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Friends</a>
 
       <button id="clear-btn" class="w3-bar-item w3-button w3-padding-large w3-hover-whit"
-        onclick="clear()">Clear</button>
+        onclick="clear()">Restart</button>
 
     </div>
 
@@ -272,6 +419,7 @@
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDns9VfNOIvqqX5KePiCgEn7niYyJzsG2s&callback=initMap&v=weekly"
       defer></script>
   </div>
+
 
   <script>
     // Used to toggle the menu on small screens when clicking on the menu button
@@ -295,75 +443,103 @@
 
     let distWalked = 0;
     let peopleMet = 0;
-    let distGoal = 10;
-    let peopleGoal = 5;
-
+    const distGoal = 10;
+    const peopleGoal = 5;
+    let peopleCheck = ""
+    let walkCheck = ""
 
 
     // Retrieve data from database, repeat this function every 5 seconds
-    function doThings() {
+    function walkFunction() {
+      console.log("walkFunction");
       const distSaved = JSON.parse(localStorage.getItem("distWalked"));
-      const peopleSaved = JSON.parse(localStorage.getItem("peopleMet"));
-      const distGoalSaved = JSON.parse(localStorage.getItem("distGoal"));
-      const peopleGoalSaved = JSON.parse(localStorage.getItem("peopleGoal"));
 
       if (distSaved) {
         distWalked = distSaved;
       }
 
-      if (peopleSaved) {
-        peopleMet = peopleSaved;
-      }
-
-      if (distGoalSaved) {
-        distGoal = distGoalSaved;
-      }
-
-      if (peopleGoalSaved) {
-        peopleGoal = peopleGoalSaved;
-      }
       let newWalk = 1;
-      let newPeople = 1;
       localStorage.setItem("distWalked", JSON.stringify(distWalked + newWalk));
-      localStorage.setItem("peopleMet", JSON.stringify(peopleMet + newPeople));
-      localStorage.setItem("distGoal", JSON.stringify(distGoal));
-      localStorage.setItem("peopleGoal", JSON.stringify(peopleGoal));
 
       if (distWalked >= distGoal) {
-        // alert("You have completed your daily walking goal!");
-        if (walkBadge.unlocked === false) {
-          walkBadge.unlocked = true;
-        }
-        walkBadge.distance = distGoal;
-        distGoal *= 2
-        localStorage.setItem("distGoal", JSON.stringify(distGoal));
-
-      }
-
-      if (peopleMet >= peopleGoal) {
-        // alert("You have completed your daily socialising goal!");
-        if (peopleBadge.unlocked === false) {
-          peopleBadge.unlocked = true;
-        }
-        peopleBadge.people = peopleGoal;
-        peopleGoal *= 2
-        localStorage.setItem("peopleGoal", JSON.stringify(peopleGoal));
+        walkCheck = ' checked="checked"';
+        clearInterval(walkInterval);
       }
 
       render();
     }
 
-    setInterval(doThings, 1000);
+    function peopleFunction() {
+      console.log("peopleFunction");
+      const peopleSaved = JSON.parse(localStorage.getItem("peopleMet"));
+
+      if (peopleSaved) {
+        peopleMet = peopleSaved;
+      }
+
+      let newPeople = 1;
+      localStorage.setItem("peopleMet", JSON.stringify(peopleMet + newPeople));
+
+      if (peopleMet >= peopleGoal) {
+        peopleCheck = ' checked="checked"';
+        clearInterval(peopleInterval);
+      }
+
+      render()
+    }
+
+    let walkInterval = setInterval(walkFunction, 1000);
+    let peopleInterval = setInterval(peopleFunction, 1000);
 
     function render() {
+      console.log("render");
       const ulEl = document.getElementById("ul-el");
 
       ulEl.innerHTML = `
       <li>
-        <p>Distance walked: ${distWalked} / ${distGoal} km</p>
+        <p>
+          Distance walked: ${distWalked} / ${distGoal} km
+          <label class="container-checkbox">
+            <input type="checkbox" ${walkCheck}>
+            <span class="checkmark"></span>
+          </label>
+        </p>
       </li>
       <li>
-        <p>People met: ${peopleMet} / ${peopleGoal} person(s)</p>
+        <p>
+          People met: ${peopleMet} / ${peopleGoal} person(s)
+          <label class="container-checkbox">
+            <input type="checkbox" ${peopleCheck}>
+            <span class="checkmark"></span>
+          </label>
+        </p>
+      </li>
+      <li>
+        <p>
+          <img src="images/tourist.png" alt="walking icon"/> Visit the museum
+          <label class="container-checkbox">
+            <input type="checkbox">
+            <span class="checkmark"></span>
+          </label>
+        </p>  
+      </li>
+      <li>
+        <p>
+          <img src="images/world.png" alt="walking icon"/> Explore the GameOn arcade
+          <label class="container-checkbox">
+            <input type="checkbox">
+            <span class="checkmark"></span>
+          </label>  
+        </p>  
+      </li>
+      <li>
+        <p>
+          <img src="images/meet.png" alt="walking icon"/> Meet and mingle in Chancery Square
+          <label class="container-checkbox">
+            <input type="checkbox">
+            <span class="checkmark"></span>
+          </label>  
+        </p>  
       </li>`;
     }
 
@@ -371,9 +547,10 @@
     clearBtn.addEventListener("click", function () {
       localStorage.clear();
       distWalked = 0;
-      distGoal = 10;
       peopleMet = 0;
-      peopleGoal = 5;
+      walkCheck = "";
+      peopleCheck = "";
+
       render()
     });
   </script>
