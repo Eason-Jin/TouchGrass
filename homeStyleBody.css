@@ -1,9 +1,13 @@
 h1 {
   font-size: 100px;
   font-weight: bold;
+  color: white;
+  text-shadow: 5px 5px #3d3d3d;
 }
 
 p {
   font-family: 'Tangerine', serif;
   font-size: 70px;
+  color: white;
+  text-shadow: 2px 2px #3d3d3d;
 }
