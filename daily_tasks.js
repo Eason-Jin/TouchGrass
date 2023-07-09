@@ -17,9 +17,67 @@ const friends = [
   ["zhi", -36.857581133743714, 174.76346794693325, 1],
 ];
 
+let markers = []
+
 const meetUpMissionCoordinate = [-36.84805834184518, 174.767335453466];
 const touristMissionCoordinate = [-36.86066249995613, 174.77774696256145];
 const actionMissionCoordinate = [-36.85139486936094, 174.76395445346617];
+
+var reqcount = 0;
+
+navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+
+function successCallback(position) {
+	let pos ={};
+  //const { accuracy, latitude, longitude, altitude, heading, speed } = position.coords;
+  pos = {
+    lat: position.coords.latitude,
+    lng: position.coords.longitude,
+  }
+    // Show a map centered at latitude / longitude.
+    reqcount++;
+    console.log("Longitude: " + pos.lng);
+    console.log("Latitude: " + pos.lat);
+    console.log("Run Number: " + reqcount);
+    
+    
+    calculateDistance(friends, pos);
+    //deleteMarkers();
+    //createMarkers(pos);
+}
+function errorCallback(error) {
+	
+}
+function clearList(){
+  const distancesListElement = document.getElementById('distances-list');
+  while( distancesListElement.firstChild ){
+    distancesListElement.removeChild( distancesListElement.firstChild );
+  }
+}
+function deleteMarkers(){
+  hideMarkers();
+  markers = [];
+}
+function createMarkers(pos){
+  marker = new google.maps.marker({
+    position: { lat: pos.lat, lng: pos.lng},
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillOpacity: 1,
+      strokeWeight: 2,
+      fillColor: '#4285F4',
+      strokeColor: '#ffffff',
+    },
+    title: "Current Location",
+    zIndex: 100000000,
+  });
+}
+var options = {
+	enableHighAccuracy: false,
+	timeout: 5000,
+	maximumAge: 0
+};
 
 async function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -32,7 +90,7 @@ async function initMap() {
     initMeetupMissionMarker(map, meetUpMissionCoordinate);
     initTouristMissionMarker(map, touristMissionCoordinate);
     initActionMissionMarker(map, actionMissionCoordinate);
-    await calculateDistance(friends, {lat: -36.853125, lng: 174.767625});
+    await calculateDistance(friends, myLocation);
 }
 
 function getCoordinates() {
@@ -54,7 +112,7 @@ async function setCurrentLocation(map) {
   
       map.setCenter(pos);
   
-      new google.maps.Marker({
+      var currentLocationMarker = new google.maps.Marker({
         position: { lat: pos.lat, lng: pos.lng},
         map,
         icon: {
@@ -68,6 +126,7 @@ async function setCurrentLocation(map) {
         title: "Current Location",
         zIndex: 100000000,
       });
+      markers.push(CurrentLocationMarker);
     } catch (e) {
       handleLocationError(true, infoWindow, map.getCenter());
     }
@@ -109,7 +168,7 @@ function initMarkers(map, friends) {
 
 function initMeetupMissionMarker(map, meetUpMissionCoordinate){
   const icon = {
-    url: "images/meet.png",
+    url: "https://preview.redd.it/hwkhiyhixza81.png?width=108&crop=smart&auto=webp&s=8e388c927966806d2a62d50362aa514ca07e3ba3",
     size: new google.maps.Size(50, 50),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(0, 0),
@@ -126,7 +185,7 @@ function initMeetupMissionMarker(map, meetUpMissionCoordinate){
 
 function initTouristMissionMarker(map, touristMissionCoordinate){
   const icon = {
-    url: "images/tourist.png",
+    url: "https://static.wikia.nocookie.net/gensin-impact/images/c/cf/Icon_Archon_Quest.png/revision/latest/thumbnail/width/360/height/360?cb=20210615060053",
     size: new google.maps.Size(50, 50),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(0, 0),
@@ -143,7 +202,7 @@ function initTouristMissionMarker(map, touristMissionCoordinate){
 
 function initActionMissionMarker(map, actionMissionCoordinate){
   const icon = {
-    url: "images/world.png",
+    url: "https://static.wikia.nocookie.net/gensin-impact/images/6/67/Icon_World_Quest.png/revision/latest/thumbnail/width/360/height/360?cb=20210615060104",
     size: new google.maps.Size(50, 50),
     origin: new google.maps.Point(0, 0),
     anchor: new google.maps.Point(0, 0),
@@ -214,6 +273,7 @@ function modifyDistancesHTML(friends, distanceMatrix) {
   });
 
   const distancesListElement = document.getElementById('distances-list');
+  clearList();
   for (let i = 0; i < distances.length; i++) {
     const distance = distances[i];
 
