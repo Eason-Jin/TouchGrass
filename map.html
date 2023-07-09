@@ -18,7 +18,7 @@
     h4,
     h5,
     h6 {
-      font-family: "Lato", sans-serif;
+      font-family: "Montserrat", sans-serif;
     }
 
     .w3-bar,
@@ -39,6 +39,17 @@
       padding: 0 !important;
       margin: 0 !important;
       top: 50px;
+    }
+
+    #friend-distances {
+      background-color: rgba(47, 48, 48, 0.882);
+      color: white;
+      position: absolute;
+      z-index: 100;
+      top: 10%;
+      right: 2%;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.529);
     }
 
     #footer {
@@ -138,6 +149,7 @@
     }
   </style>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script type="text/javascript" src="./daily_tasks.js"></script>
   <script>
     /**
      * @license
@@ -420,6 +432,11 @@
       defer></script>
   </div>
 
+  <div id="friend-distances">
+    <h5 style="margin: 0; padding: 0.8rem; text-align: center;"><strong>Closest Users</strong></h5>
+    <hr style="margin: 0; border-top: 0.1px solid #eeeeee4f;" />
+    <ol id="distances-list" style="margin: 0; padding: 0.8rem 0.8rem 0.8rem 2rem;"></ol>
+  </div>
 
   <script>
     // Used to toggle the menu on small screens when clicking on the menu button
