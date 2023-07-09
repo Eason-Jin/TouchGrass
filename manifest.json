@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "version": "1.0",
+  "name": "GeoTraveller",
+  "action": {
+      "default_popup": "home.html",
+      "default_icon": "images/favicon.ico"
+  },
+  "permissions": [
+    "tabs"
+  ]
+}
